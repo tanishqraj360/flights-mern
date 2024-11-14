@@ -27,7 +27,7 @@ export const insertData = async (req, res) => {
 };
 
 export const getData = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
 
   try {
     const flight = await Flights.findOne({ id });

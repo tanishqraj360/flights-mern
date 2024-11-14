@@ -52,7 +52,7 @@ function App() {
   const getFlight = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8766/api/get?id=${getId}`,
+        `http://localhost:8766/api/data/${getId}`,
       );
       if (response.data.data) {
         setGetResponse(response.data.data);
