@@ -14,7 +14,7 @@ function App() {
   const [insertResponse, setInsertResponse] = useState("");
 
   const [getId, setGetId] = useState("");
-  const [getResponse, setGetResponse] = useState(null);
+  const [getResponse, setGetResponse] = useState([]);
 
   const [updateData, setUpdateData] = useState({
     id: "",
@@ -50,17 +50,26 @@ function App() {
   };
 
   const getFlight = async () => {
+    if (!getId) {
+      alert("Please Enter valid flight id");
+      return;
+    }
     try {
       const response = await axios.get(
         `http://localhost:8766/api/data/${getId}`,
       );
       if (response.data.data) {
-        setGetResponse(response.data.data);
+        const flightData = Array.isArray(response.data.data)
+          ? response.data.data
+          : [response.data.data];
+        setGetResponse(flightData);
       } else {
-        setGetResponse(response.data.message || "Flight not found");
+        setGetResponse([]);
+        alert(response.data.message || "Flight Not Found");
       }
     } catch (error) {
-      setGetResponse("Failed to fetch data");
+      setGetResponse([]);
+      alert("Failed to fetch data");
     }
   };
 
@@ -128,10 +137,47 @@ function App() {
           onChange={(e) => setGetId(e.target.value)}
         />
         <button onClick={getFlight}>Get Flight</button>
-        <pre>{getResponse && JSON.stringify(getResponse, null, 2)}</pre>
       </div>
 
+      {getResponse.length > 0 && (
+        <table
+          border="1"
+          cellPadding="10"
+          style={{
+            marginTop: "20px",
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Airline</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Fare</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            {getResponse.map((flight) => (
+              <tr key={flight.id}>
+                <td>{flight.id}</td>
+                <td>{flight.airline}</td>
+                <td>{flight.source}</td>
+                <td>{flight.destination}</td>
+                <td>{flight.fare}</td>
+                <td>{flight.duration}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {getResponse.length === 0 && <p>No flight data available</p>}
+
       {/* Update Flight */}
+      <div style={{ height: "20px" }}></div>
       <div className="section">
         <h2>Update Flight</h2>
         {["id", "airline", "source", "destination", "fare", "duration"].map(
